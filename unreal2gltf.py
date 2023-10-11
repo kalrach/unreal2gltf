@@ -4,7 +4,7 @@ import unreal
 # Constants
 GAME_PATH_ROOT = '/Game/' # Unreal needs this to find the content folder
 SCRIPT_USAGE= """
-Usage: unreal2gltf.py -i <input package name> -o <output path override> [flags]
+Usage: unreal2gltf.py -i <input path> -o <output path > [flags]
     -i, --ipath=: Relative path to assets from the content directory. Ex. /path/to/input/
     -o, --opath=: Where the exported files will be sent. Has to be a full path. Ex. \'C:/path/to/output/\'
     -r, --recursive: Export assets from subdirectories. Will not preserve directory structure.
