@@ -9,7 +9,7 @@ Usage: unreal2gltf.py -i <input path> -o <output path > [flags]
     -o, --opath=: Where the exported files will be sent. Has to be a full path. Ex. \'C:/path/to/output/\'
     -r, --recursive: Export assets from subdirectories. Will not preserve directory structure.
     -b, --binary: Will export assets in the '.glb' instead of the '.gltf' format.
-    -s, --subdirs=: List of subdirectories to export separated by commas. Ex. path1,path2,path3
+    -d, --subdirs=: List of subdirectories to export separated by commas. Ex. path1,path2,path3
 """
 VERSION_INFO= "unreal2gltf.py Version 1.0"
 
@@ -83,7 +83,7 @@ def main(argv):
             recursive_flag = True
         elif opt in ("-b", "--binary"):
             as_binary = True
-        elif opt in ("-b", "--subdirs"):
+        elif opt in ("-d", "--subdirs"):
             subdirs = arg.split(',')
             using_subdirs = True
     
