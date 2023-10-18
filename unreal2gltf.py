@@ -65,7 +65,7 @@ def main(argv):
     
     # Define and check the commandline arguments
     try:
-        opts, arg = getopt.getopt(argv,"bhi:o:r",["help","ipath=","opath=","recursive", "binary"])
+        opts, arg = getopt.getopt(argv,"bd:hi:o:r",["help","ipath=","opath=","recursive", "binary"])
     except getopt.GetoptError:
         unreal.log_error("unreal2gltf.py: Invalid Arguments. Try \'unreal2gltf.py -h\' for more information.")
         sys.exit(2)
