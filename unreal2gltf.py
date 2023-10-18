@@ -11,7 +11,7 @@ Usage: unreal2gltf.py -i <input path> -o <output path > [flags]
     -b, --binary: Will export assets in the '.glb' instead of the '.gltf' format.
     -d, --subdirs=: List of subdirectories to export separated by commas. Ex. path1,path2,path3
 """
-VERSION_INFO= "unreal2gltf.py Version 1.0"
+VERSION_INFO= "unreal2gltf.py Version 1.1"
 
 # Actual Export Function
 def do_export(asset_directory: str, output_root: str, as_bin:bool, recurse:bool):
@@ -65,7 +65,7 @@ def main(argv):
     
     # Define and check the commandline arguments
     try:
-        opts, arg = getopt.getopt(argv,"bd:hi:o:r",["help","ipath=","opath=","recursive", "binary"])
+        opts, arg = getopt.getopt(argv,"bd:hi:o:rv",["help","ipath=","opath=","recursive", "subdirs=", "binary", "version"])
     except getopt.GetoptError:
         unreal.log_error("unreal2gltf.py: Invalid Arguments. Try \'unreal2gltf.py -h\' for more information.")
         sys.exit(2)
@@ -74,6 +74,9 @@ def main(argv):
     for opt, arg in opts:
         if opt in ("-h", "--help"):
             print(SCRIPT_USAGE)
+            sys.exit()
+        if opt in ("-v", "--version"):
+            print(VERSION_INFO)
             sys.exit()
         elif opt in ("-i", "--ipath"):
             input_directory = arg
