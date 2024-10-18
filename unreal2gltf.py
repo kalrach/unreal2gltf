@@ -1,5 +1,6 @@
 import sys, getopt
 import unreal
+import os
 
 # Constants
 GAME_PATH_ROOT = '/Game/' # Unreal needs this to find the content folder
@@ -10,11 +11,12 @@ Usage: unreal2gltf.py -i <input path> -o <output path > [flags]
     -r, --recursive: Export assets from subdirectories. Will not preserve directory structure.
     -b, --binary: Will export assets in the '.glb' instead of the '.gltf' format.
     -d, --subdirs=: List of subdirectories to export separated by commas. Ex. path1,path2,path3
+    -nt, --notexture: Export without textures
 """
 VERSION_INFO= "unreal2gltf.py Version 1.1"
 
 # Actual Export Function
-def do_export(asset_directory: str, output_root: str, as_bin:bool, recurse:bool):
+def do_export(asset_directory: str, output_root: str, as_bin:bool, recurse:bool, no_texture:bool):
     # Check if input amd output were full directories
     if asset_directory[-1] == '/':
         asset_path = GAME_PATH_ROOT+asset_directory
@@ -31,7 +33,12 @@ def do_export(asset_directory: str, output_root: str, as_bin:bool, recurse:bool)
     # Assign asset export options
     gltf_file_type = '.glb' if as_bin else '.gltf'
     export_options = unreal.GLTFExportOptions()
-    export_options.bake_material_inputs = unreal.GLTFMaterialBakeMode.USE_MESH_DATA
+    if no_texture:
+        export_options.bake_material_inputs = unreal.GLTFMaterialBakeMode.DISABLED
+        export_options.export_material_variants = unreal.GLTFMaterialVariantMode.NONE
+        export_options.texture_image_format = unreal.GLTFTextureImageFormat.NONE
+    else:
+        export_options.bake_material_inputs = unreal.GLTFMaterialBakeMode.USE_MESH_DATA
     selected_actors = set()
 
     # Create export progress dialog and start export
@@ -46,12 +53,20 @@ def do_export(asset_directory: str, output_root: str, as_bin:bool, recurse:bool)
             if unreal.MathLibrary.class_is_child_of(static_mesh.get_class(), unreal.StaticMesh.static_class()):
                 # Creating export path by concatenating the output root, mesh name and file type
                 # Also splicing the asset_path variable to account for /Game/
-                # Also accounting for if the exports aren't binary make a folder for each asset
+                # Maintain folder structure for both .glb and .gltf formats
+                relative_path = asset[len(GAME_PATH_ROOT):]
+                asset_dir, asset_name = os.path.split(relative_path)
+                export_dir = os.path.join(output_root, asset_dir)
+                
                 if gltf_file_type == '.glb':
-                    exportPath = output_root+asset_path[7:]+static_mesh.get_name()+gltf_file_type
+                    export_path = os.path.join(export_dir, f"{static_mesh.get_name()}{gltf_file_type}")
                 else:
-                    exportPath = output_root+asset_path[7:]+static_mesh.get_name()+'/'+static_mesh.get_name()+gltf_file_type
-                unreal.GLTFExporter.export_to_gltf(static_mesh,exportPath,export_options,selected_actors) # type: ignore
+                    export_path = os.path.join(export_dir, static_mesh.get_name(), f"{static_mesh.get_name()}{gltf_file_type}")
+                
+                # Ensure the export directory exists
+                os.makedirs(os.path.dirname(export_path), exist_ok=True)
+                
+                unreal.GLTFExporter.export_to_gltf(static_mesh, export_path, export_options, selected_actors) # type: ignore
 
 # Main Script Entry
 def main(argv):
@@ -62,10 +77,11 @@ def main(argv):
     using_subdirs = False
     recursive_flag = False
     as_binary = False
+    no_texture = False
     
     # Define and check the commandline arguments
     try:
-        opts, arg = getopt.getopt(argv,"bd:hi:o:rv",["help","ipath=","opath=","recursive", "subdirs=", "binary", "version"])
+        opts, arg = getopt.getopt(argv,"bd:hi:o:rvnt",["help","ipath=","opath=","recursive", "subdirs=", "binary", "version", "notexture"])
     except getopt.GetoptError:
         unreal.log_error("unreal2gltf.py: Invalid Arguments. Try \'unreal2gltf.py -h\' for more information.")
         sys.exit(2)
@@ -89,6 +105,8 @@ def main(argv):
         elif opt in ("-d", "--subdirs"):
             subdirs = arg.split(',')
             using_subdirs = True
+        elif opt in ("-nt", "--notexture"):
+            no_texture = True
     
     # Handle empty input path
     if input_directory == '':
@@ -103,11 +121,11 @@ def main(argv):
     if using_subdirs:
         for subdir in subdirs:
             if input_directory[-1] == '/':
-                do_export(input_directory+subdir,output_directory,as_binary,recursive_flag)
+                do_export(input_directory+subdir,output_directory,as_binary,recursive_flag,no_texture)
             else:
-                do_export(input_directory+'/'+subdir,output_directory,as_binary,recursive_flag)
+                do_export(input_directory+'/'+subdir,output_directory,as_binary,recursive_flag,no_texture)
     else:
-        do_export(input_directory,output_directory,as_binary,recursive_flag)
+        do_export(input_directory,output_directory,as_binary,recursive_flag,no_texture)
 
 # Run script if called from the commandline
 if __name__ == "__main__":
