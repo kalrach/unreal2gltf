@@ -13,7 +13,7 @@ Usage: unreal2gltf.py -i <input path> -o <output path > [flags]
     -d, --subdirs=: List of subdirectories to export separated by commas. Ex. path1,path2,path3
     -nt, --notexture: Export without textures
 """
-VERSION_INFO= "unreal2gltf.py Version 1.1"
+VERSION_INFO= "unreal2gltf.py Version 1.2"
 
 # Actual Export Function
 def do_export(asset_directory: str, output_root: str, as_bin:bool, recurse:bool, no_texture:bool):
