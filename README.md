@@ -33,6 +33,8 @@ Usage: `unreal2gltf.py -i <input path> -o <output path> [additional flags] `
 
 `-v`, `--version`: Get current version of the script and exit.
 
+`-nt`, `--notexture`: Export without textures
+
 ## Advanced Uage
 This script can be run directly from the commandline. Unreal Documentation shows how to run Python scripts directly from the commandline [here](https://docs.unrealengine.com/5.0/en-US/scripting-the-unreal-editor-using-python/#thecommandline).
 >[!WARNING]
